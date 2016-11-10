@@ -1,0 +1,153 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.runcom.wgcwgc.audio.MainActivity" >
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/main_viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="111dp"
+        android:paddingTop="0dp" />
+
+    <LinearLayout
+        android:id="@+id/point_layout"
+        android:layout_width="match_parent"
+        android:layout_height="20dip"
+        android:layout_above="@+id/main_viewPager"
+        android:layout_alignBottom="@id/main_viewPager"
+        android:background="#B8B8B8"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/dian" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="20dip"
+            android:background="@drawable/dian" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="20dip"
+            android:background="@drawable/dian" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/main_child_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/main_viewPager"
+        android:layout_toLeftOf="@+id/main_middle_button"
+        android:text="@string/main_child_button" />
+
+    <Button
+        android:id="@+id/main_middle_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/point_layout"
+        android:layout_alignBaseline="@+id/main_child_button"
+        android:layout_alignBottom="@+id/main_child_button"
+        android:layout_centerHorizontal="true"
+        android:text="@string/main_primary_button" />
+
+    <Button
+        android:id="@+id/main_primary_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/main_middle_button"
+        android:layout_alignBottom="@+id/main_middle_button"
+        android:layout_toRightOf="@+id/main_middle_button"
+        android:text="@string/main_middle_button" />
+
+    <ListView
+        android:id="@+id/main_listView"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:layout_alignLeft="@+id/main_viewPager"
+        android:layout_below="@+id/main_middle_button"
+        android:singleLine="true" >
+    </ListView>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linearLayout1"
+        android:layout_alignLeft="@+id/linearLayout1"
+        android:gravity="center" >
+
+        <TextView
+            android:id="@+id/textView1_curr_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:text="00:00" />
+
+        <SeekBar
+            android:id="@+id/seekBar1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/textView1_total_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="00:00" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_showName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linearLayout2"
+        android:layout_alignLeft="@+id/linearLayout2"
+        android:gravity="center" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/main_listView"
+        android:layout_alignParentBottom="true"
+        android:gravity="center" >
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="上一曲"
+            android:onClick="previous"
+            android:src="@drawable/ic_media_previous" />
+
+        <ImageButton
+            android:id="@+id/media_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="播放"
+            android:onClick="play"
+            android:src="@drawable/ic_media_play" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="下一曲"
+            android:onClick="next"
+            android:src="@drawable/ic_media_next" />
+    </LinearLayout>
+
+</RelativeLayout>

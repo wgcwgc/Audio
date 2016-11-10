@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Audio</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- main interface -->
+    <string name="main_child_button">幼儿</string>
+    <string name="main_primary_button">小学</string>
+    <string name="main_middle_button">中学</string>
+
+</resources>
