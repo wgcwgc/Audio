@@ -13,12 +13,12 @@
         android:id="@+id/main_viewPager"
         android:layout_width="match_parent"
         android:layout_height="111dp"
-        android:paddingTop="0dp" />
+        />
 
     <LinearLayout
         android:id="@+id/point_layout"
         android:layout_width="match_parent"
-        android:layout_height="20dip"
+        android:layout_height="7dip"
         android:layout_above="@+id/main_viewPager"
         android:layout_alignBottom="@id/main_viewPager"
         android:background="#B8B8B8"
@@ -76,7 +76,8 @@
     <ListView
         android:id="@+id/main_listView"
         android:layout_width="wrap_content"
-        android:layout_height="200dp"
+        android:background="#B8B8B8"
+        android:layout_height="256dp"
         android:layout_alignLeft="@+id/main_viewPager"
         android:layout_below="@+id/main_middle_button"
         android:singleLine="true" >
@@ -100,7 +101,7 @@
         <SeekBar
             android:id="@+id/seekBar1"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="5dp"
             android:layout_weight="1" />
 
         <TextView
@@ -117,6 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/linearLayout2"
         android:layout_alignLeft="@+id/linearLayout2"
+        android:text=" "
         android:gravity="center" />
 
     <LinearLayout

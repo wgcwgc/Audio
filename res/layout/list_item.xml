@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textView1_music_name"
+    android:layout_width="256dp"
+    android:layout_height="57dp"
+    android:layout_margin="5dp"
+    android:singleLine="true"
+    android:textSize="22sp" >
+
+</TextView>
