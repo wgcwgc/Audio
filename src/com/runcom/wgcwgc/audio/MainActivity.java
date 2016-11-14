@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
@@ -21,6 +22,7 @@ import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +39,8 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.runcom.wgcwgc.recordServer.Recorder;
 
 @SuppressLint("HandlerLeak")
 public class MainActivity extends Activity implements OnCompletionListener , OnErrorListener , OnSeekBarChangeListener , OnItemClickListener , Runnable
@@ -62,7 +66,10 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 	private ListView listView;
 	private ImageButton btnPlay;
 	private TextView tv_currTime , tv_totalTime , tv_showName;
-	private List < String > list = new ArrayList < String >();
+	private List < String > play_list = new ArrayList < String >(); // 播放列表
+	String [] ext =
+	{ ".mp3", ".wav" };
+	File file = Environment.getExternalStorageDirectory();// sd卡根目录
 	private ProgressDialog pd; // 进度条对话框
 	private MusicListAdapter ma;// 适配器
 	private MediaPlayer mp;
@@ -85,20 +92,19 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		init();
+		initViewPager();
 		initDots();
-
 		loopPlay();
 
 		mp = new MediaPlayer();
 		mp.setOnCompletionListener(this);
 		mp.setOnErrorListener(this);
 
-		initView();
+		initPlayView();
 
 	}
 
-	private void initView()
+	private void initPlayView()
 	{
 		btnPlay = (ImageButton) findViewById(R.id.media_play);
 		seekBar = (SeekBar) findViewById(R.id.seekBar1);
@@ -108,6 +114,9 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 		tv_currTime = (TextView) findViewById(R.id.textView1_curr_time);
 		tv_totalTime = (TextView) findViewById(R.id.textView1_total_time);
 		tv_showName = (TextView) findViewById(R.id.tv_showName);
+
+		// search(file ,ext);
+		// hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
 	}
 
 	public Handler hander = new Handler()
@@ -157,7 +166,7 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 					if(filename.endsWith(ext[i]))
 					{
 						// list.add(filename.substring(filename.lastIndexOf("/")));
-						list.add(filename);
+						play_list.add(filename);
 						// System.out.println("3:" + filename);
 						break;
 					}
@@ -172,12 +181,12 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 
 		public int getCount()
 		{
-			return list.size();
+			return play_list.size();
 		}
 
 		public Object getItem(int position )
 		{
-			return list.get(position);
+			return play_list.get(position);
 		}
 
 		public long getItemId(int position )
@@ -192,7 +201,7 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 				convertView = getLayoutInflater().inflate(R.layout.list_item ,null);
 			}
 			TextView tv_music_name = (TextView) convertView.findViewById(R.id.textView1_music_name);
-			String name = list.get(position).toString();
+			String name = play_list.get(position).toString();
 			name = name.substring(name.lastIndexOf("/") + 1);
 			// tv_music_name.setText(list.get(position));
 			tv_music_name.setText(name);
@@ -224,13 +233,13 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 	// 上一首
 	private void previous()
 	{
-		if((currIndex - 1) >= 0 && list.size() > 0)
+		if((currIndex - 1) >= 0 && play_list.size() > 0)
 		{
 			currIndex -- ;
 			start();
 		}
 		else
-			if(list.size() <= 0)
+			if(play_list.size() <= 0)
 			{
 				Toast.makeText(this ,"播放列表为空" ,Toast.LENGTH_SHORT).show();
 			}
@@ -243,13 +252,13 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 	// 下一首
 	private void next()
 	{
-		if(currIndex + 1 < list.size() && list.size() > 1)
+		if(currIndex + 1 < play_list.size() && play_list.size() > 1)
 		{
 			currIndex ++ ;
 			start();
 		}
 		else
-			if(currIndex == list.size())
+			if(currIndex == play_list.size())
 			{
 				Toast.makeText(this ,"播放列表为空" ,Toast.LENGTH_SHORT).show();
 			}
@@ -262,9 +271,9 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 	// 开始播放
 	private void start()
 	{
-		if(list.size() > 0 && currIndex < list.size())
+		if(play_list.size() > 0 && currIndex < play_list.size())
 		{
-			String SongPath = list.get(currIndex);
+			String SongPath = play_list.get(currIndex);
 			mp.reset();
 			try
 			{
@@ -273,7 +282,7 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 				mp.start();
 				initSeekBar();
 				es.execute(this);
-				tv_showName.setText(list.get(currIndex));
+				tv_showName.setText(play_list.get(currIndex));
 				btnPlay.setImageResource(R.drawable.ic_media_pause);
 				currState = PAUSE;
 			}
@@ -309,7 +318,7 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 	// 监听器，当当前歌曲播放完时触发，播放下一首
 	public void onCompletion(MediaPlayer mp )
 	{
-		if(list.size() > 0)
+		if(play_list.size() > 0)
 		{
 			next();
 		}
@@ -406,7 +415,7 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 
 	@SuppressLint("InflateParams")
 	@SuppressWarnings("deprecation")
-	private void init()
+	private void initViewPager()
 	{
 		viewPager = (ViewPager) findViewById(R.id.main_viewPager);
 		LayoutInflater inflater = LayoutInflater.from(this);
@@ -440,6 +449,49 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 				// Log.d("LOG" ,"arg0:" + arg0);
 			}
 		});
+	}
+
+	public void main_child_buttonClick(View view )
+	{
+		// search(file ,ext);
+		// hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
+		Log.d("LOG" ,"幼儿音频");
+		Toast.makeText(this ,"幼儿音频" ,Toast.LENGTH_SHORT).show();
+	}
+
+	public void main_primary_buttonClick(View view )
+	{
+		// search(file ,ext);
+		// hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
+		Log.d("LOG" ,"小学音频");
+		Toast.makeText(this ,"小学音频" ,Toast.LENGTH_SHORT).show();
+	}
+
+	public void main_middle_buttonClick(View view )
+	{
+		// search(file ,ext);
+		// hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
+		Log.d("LOG" ,"中学音频");
+		Toast.makeText(this ,"中学音频" ,Toast.LENGTH_SHORT).show();
+	}
+
+	public void first_layout01_onClick(View view )
+	{
+		Log.d("LOG" ,"first_layout01_onClick");
+		Toast.makeText(this ,"first_layout01_onClick" ,Toast.LENGTH_SHORT).show();
+	}
+
+	public void first_layout02_onClick(View view )
+	{
+		Log.d("LOG" ,"first_layout02_onClick");
+		Toast.makeText(this ,"first_layout02_onClick" ,Toast.LENGTH_SHORT).show();
+
+	}
+
+	public void first_layout03_onClick(View view )
+	{
+		Log.d("LOG" ,"first_layout03_onClick");
+		Toast.makeText(this ,"first_layout03_onclick" ,Toast.LENGTH_SHORT).show();
 	}
 
 	/**
@@ -562,11 +614,6 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu )
 	{
-		// Inflate the menu; this adds items to the action bar if it is present.
-		// getMenuInflater().inflate(R.menu.main ,menu);
-		// return true;
-		//
-		// 从.xml文件中装载菜单
 		getMenuInflater().inflate(R.menu.media_menu ,menu);
 		return super.onCreateOptionsMenu(menu);
 
@@ -575,38 +622,28 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item )
 	{
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
 		switch(item.getItemId())
 		{
 		// 搜索本地音乐菜单
 			case R.id.item1_search:
-				list.clear();
+				play_list.clear();
 				// 是否有外部存储设备
 				if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 				{
 					pd = ProgressDialog.show(this ,"搜索" ,"正在搜索音乐文件..." ,true);
-//					Toast.makeText(this ,"正在搜索音乐文件" ,Toast.LENGTH_LONG).show();
+					// Toast.makeText(this ,"正在搜索音乐文件"
+					// ,Toast.LENGTH_LONG).show();
 					new Thread(new Runnable()
 					{
-						String [] ext =
-						{ ".mp3", ".wav" };
-						File file = Environment.getExternalStorageDirectory();// sd卡根目录
-
-						// File file = getExternalFilesDir(".mp3");
-						// /data/data/your_package/;
-						// File file = getFilesDir(); // /data/data/files/ ;
-						// File file = getCacheDir();// /data/data/cache/ ;
-
-						// File file = Environment.getRootDirectory();
+						// String [] ext =
+						// { ".mp3", ".wav" };
+						// File file =
+						// Environment.getExternalStorageDirectory();// sd卡根目录
 
 						public void run()
 						{
-							// System.out.println("1:" + file.toString());
 							search(file ,ext);
 							hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
-							// Log.d("" , "");
 						}
 					}).start();
 
@@ -616,12 +653,24 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 					Toast.makeText(this ,"请插入外部存储设备..." ,Toast.LENGTH_LONG).show();
 					System.out.println(Environment.getExternalStorageDirectory().toString());
 				}
-				
+
 				break;
 			// 清除播放列表菜单
 			case R.id.item2_clear:
-				list.clear();
-				ma.notifyDataSetChanged();
+				if(play_list.isEmpty())
+				{
+
+				}
+				else
+				{
+					play_list.clear();
+					ma.notifyDataSetChanged();
+				}
+				break;
+
+			case R.id.item3_record:
+				Intent intent = new Intent(this , Recorder.class);
+				startActivity(intent);
 				break;
 			// 退出菜单
 			case R.id.item3_exit:

@@ -2,17 +2,35 @@
 <resources>
 
     <string name="app_name">Audio</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <!-- app_ViewPager -->
+    <string name="main_viewPager_dian">小圆点</string>
+
+    <!-- app_recorder menu setting -->
+    <string name="search">搜索本地音乐</string>
+    <string name="clear_music_list">清除播放列表</string>
+    <string name="recorder">录音</string>
+    <string name="exit">退出</string>
+    
+    <!-- app_recorder interface -->
+    <string name="Recording">Android Audio Recording Application</string>
+    <string name="start">start</string>
+    <string name="stop">stop</string>
+    <string name="play">play</string>
+    <string name="share">share</string>
 
     <!-- main interface -->
     <string name="main_child_button">幼儿</string>
     <string name="main_primary_button">小学</string>
     <string name="main_middle_button">中学</string>
-    
-    <!-- app_recorder menu setting -->
-    <string name="search">搜索本地音乐</string>
-    <string name="clear_music_list">清除播放列表</string>
-    <string name="exit">退出</string>
+
+    <!-- main_audioPlay -->
+    <string name="hello_world"></string>
+    <string name="main_audio_play">播放</string>
+    <string name="main_audio_next">下一曲</string>
+    <string name="main_audio_previous">上一曲</string>
+    <string name="main_audio_curr_time">00:00</string>
+    <string name="main_audio_total_time">00:00</string>
 
 </resources>
