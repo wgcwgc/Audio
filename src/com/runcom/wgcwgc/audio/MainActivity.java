@@ -9,7 +9,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -19,14 +18,18 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -34,30 +37,53 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.runcom.wgcwgc.recordServer.Recorder;
+import com.runcom.wgcwgc.record.Mainactivity;
 
 @SuppressLint("HandlerLeak")
-public class MainActivity extends Activity implements OnCompletionListener , OnErrorListener , OnSeekBarChangeListener , OnItemClickListener , Runnable
+public class MainActivity extends FragmentActivity implements OnCompletionListener , OnErrorListener , OnSeekBarChangeListener , OnItemClickListener , Runnable , OnPageChangeListener , OnClickListener
 {
 
-	private ViewPager viewPager;
+	private ViewPager viewPager_top;
 	private ArrayList < View > viewPager_list = new ArrayList < View >();
 	// 底部点的布局
 	private LinearLayout pointLayout;
 	// 底部的点
 	private ImageView [] dots;
 	// 当前选中的索引
-	private int currentIndex;
+	private int viewPager_currentIndex;
 	//
 	private boolean viewPagerFlag = true;
 	// 自增int
 	private AtomicInteger what = new AtomicInteger(0);
+
+	// Fragment_pagerView control
+	// 三个textview
+	private TextView tab1Tv , tab2Tv , tab3Tv;
+	// 指示器
+	private ImageView cursorImg;
+	// viewpager
+	private ViewPager viewPager;
+	// fragment对象集合
+	private ArrayList < Fragment > fragmentsList;
+	// 记录当前选中的tab的index
+	int currentIndex = 0;
+	// 指示器的偏移量
+	private int offset = 0;
+	// 左margin
+	int leftMargin = 0;
+	// 屏幕宽度
+	private int screenWidth = 0;
+	// 屏幕宽度的三分之一
+	private int screen1_3;
+	//
+	private LinearLayout.LayoutParams lp;
 
 	// Audio play control
 
@@ -90,17 +116,118 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 	protected void onCreate(Bundle savedInstanceState )
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_third);
 
-		initViewPager();
+		initViewPager_top();
 		initDots();
 		loopPlay();
+
+		initMiddle();
 
 		mp = new MediaPlayer();
 		mp.setOnCompletionListener(this);
 		mp.setOnErrorListener(this);
 
 		initPlayView();
+
+	}
+
+	/**
+	 * 初始化操作
+	 */
+	private void initMiddle()
+	{
+
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		screenWidth = dm.widthPixels;
+		screen1_3 = screenWidth / 3;
+
+		cursorImg = (ImageView) findViewById(R.id.cursor);
+		lp = (LayoutParams) cursorImg.getLayoutParams();
+		leftMargin = lp.leftMargin;
+
+		tab1Tv = (TextView) findViewById(R.id.tab1_tv);
+		tab2Tv = (TextView) findViewById(R.id.tab2_tv);
+		tab3Tv = (TextView) findViewById(R.id.tab3_tv);
+		//
+		tab1Tv.setOnClickListener(this);
+		tab2Tv.setOnClickListener(this);
+		tab3Tv.setOnClickListener(this);
+
+		initViewPager_middle();
+	}
+
+	/**
+	 * 初始化viewpager
+	 */
+	@SuppressWarnings("deprecation")
+	private void initViewPager_middle()
+	{
+		viewPager = (ViewPager) findViewById(R.id.third_vp);
+		fragmentsList = new ArrayList < Fragment >();
+		Fragment fragment = new Tab1Fragment();
+		fragmentsList.add(fragment);
+		fragment = new Tab2Fragment();
+		fragmentsList.add(fragment);
+		fragment = new Tab3Fragment();
+		fragmentsList.add(fragment);
+
+		viewPager.setAdapter(new FragmentAdapter(getSupportFragmentManager() , fragmentsList));
+		viewPager.setCurrentItem(0);
+		viewPager.setOnPageChangeListener(this);
+	}
+
+	@Override
+	public void onPageScrolled(int position , float positionOffset , int positionOffsetPixels )
+	{
+		// TODO
+		offset = (screen1_3 - cursorImg.getLayoutParams().width) / 2;
+		Log.d("111" ,position + "--" + positionOffset + "--" + positionOffsetPixels);
+		// final float scale = getResources().getDisplayMetrics().density;
+		if(position == 0)
+		{// 0<->1
+			lp.leftMargin = (int) (positionOffsetPixels / 3) + offset;
+		}
+		else
+			if(position == 1)
+			{// 1<->2
+				lp.leftMargin = (int) (positionOffsetPixels / 3) + screen1_3 + offset;
+			}
+		cursorImg.setLayoutParams(lp);
+		currentIndex = position;
+
+	}
+
+	@Override
+	public void onClick(View v )
+	{
+		// TODO Auto-generated method stub
+		switch(v.getId())
+		{
+			case R.id.tab1_tv:
+				viewPager.setCurrentItem(0);
+				break;
+			case R.id.tab2_tv:
+				viewPager.setCurrentItem(1);
+				break;
+			case R.id.tab3_tv:
+				viewPager.setCurrentItem(2);
+				break;
+		}
+	}
+
+	@Override
+	public void onPageScrollStateChanged(int arg0 )
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onPageSelected(int arg0 )
+	{
+		// TODO Auto-generated method stub
 
 	}
 
@@ -205,7 +332,7 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 			name = name.substring(name.lastIndexOf("/") + 1);
 			// tv_music_name.setText(list.get(position));
 			tv_music_name.setText(name);
-			Toast.makeText(MainActivity.this ,"搜索完成！！！" ,Toast.LENGTH_SHORT).show();
+//			Toast.makeText(MainActivity.this ,"搜索完成" ,Toast.LENGTH_SHORT).show();
 			return convertView;
 		}
 
@@ -415,9 +542,9 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 
 	@SuppressLint("InflateParams")
 	@SuppressWarnings("deprecation")
-	private void initViewPager()
+	private void initViewPager_top()
 	{
-		viewPager = (ViewPager) findViewById(R.id.main_viewPager);
+		viewPager_top = (ViewPager) findViewById(R.id.main_viewPager);
 		LayoutInflater inflater = LayoutInflater.from(this);
 		View view1 = inflater.inflate(R.layout.first_layout1 ,null);
 		View view2 = inflater.inflate(R.layout.first_layout2 ,null);
@@ -426,8 +553,8 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 		viewPager_list.add(view2);
 		viewPager_list.add(view3);
 
-		viewPager.setAdapter(pagerAdapter);
-		viewPager.setOnPageChangeListener(new OnPageChangeListener()
+		viewPager_top.setAdapter(pagerAdapter);
+		viewPager_top.setOnPageChangeListener(new OnPageChangeListener()
 		{
 			@Override
 			public void onPageSelected(int arg0 )
@@ -451,29 +578,29 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 		});
 	}
 
-	public void main_child_buttonClick(View view )
-	{
-		// search(file ,ext);
-		// hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
-		Log.d("LOG" ,"幼儿音频");
-		Toast.makeText(this ,"幼儿音频" ,Toast.LENGTH_SHORT).show();
-	}
-
-	public void main_primary_buttonClick(View view )
-	{
-		// search(file ,ext);
-		// hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
-		Log.d("LOG" ,"小学音频");
-		Toast.makeText(this ,"小学音频" ,Toast.LENGTH_SHORT).show();
-	}
-
-	public void main_middle_buttonClick(View view )
-	{
-		// search(file ,ext);
-		// hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
-		Log.d("LOG" ,"中学音频");
-		Toast.makeText(this ,"中学音频" ,Toast.LENGTH_SHORT).show();
-	}
+	// public void main_child_buttonClick(View view )
+	// {
+	// // search(file ,ext);
+	// // hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
+	// Log.d("LOG" ,"幼儿音频");
+	// Toast.makeText(this ,"幼儿音频" ,Toast.LENGTH_SHORT).show();
+	// }
+	//
+	// public void main_primary_buttonClick(View view )
+	// {
+	// // search(file ,ext);
+	// // hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
+	// Log.d("LOG" ,"小学音频");
+	// Toast.makeText(this ,"小学音频" ,Toast.LENGTH_SHORT).show();
+	// }
+	//
+	// public void main_middle_buttonClick(View view )
+	// {
+	// // search(file ,ext);
+	// // hander.sendEmptyMessage(SEARCH_MUSIC_SUCCESS);
+	// Log.d("LOG" ,"中学音频");
+	// Toast.makeText(this ,"中学音频" ,Toast.LENGTH_SHORT).show();
+	// }
 
 	public void first_layout01_onClick(View view )
 	{
@@ -505,8 +632,8 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 		{
 			dots[i] = (ImageView) pointLayout.getChildAt(i);
 		}
-		currentIndex = 0;
-		dots[currentIndex].setBackgroundResource(R.drawable.dian_down);
+		viewPager_currentIndex = 0;
+		dots[viewPager_currentIndex].setBackgroundResource(R.drawable.dian_down);
 	}
 
 	/**
@@ -514,13 +641,13 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 	 */
 	private void setDots(int position )
 	{
-		if(position < 0 || position > viewPager_list.size() - 1 || currentIndex == position)
+		if(position < 0 || position > viewPager_list.size() - 1 || viewPager_currentIndex == position)
 		{
 			return;
 		}
 		dots[position].setBackgroundResource(R.drawable.dian_down);
-		dots[currentIndex].setBackgroundResource(R.drawable.dian);
-		currentIndex = position;
+		dots[viewPager_currentIndex].setBackgroundResource(R.drawable.dian);
+		viewPager_currentIndex = position;
 	}
 
 	private PagerAdapter pagerAdapter = new PagerAdapter()
@@ -558,7 +685,7 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 		@Override
 		public void handleMessage(android.os.Message msg )
 		{
-			viewPager.setCurrentItem(msg.what);
+			viewPager_top.setCurrentItem(msg.what);
 			setDots(msg.what);
 		};
 	};
@@ -669,7 +796,7 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 				break;
 
 			case R.id.item3_record:
-				Intent intent = new Intent(this , Recorder.class);
+				Intent intent = new Intent(this , Mainactivity.class);
 				startActivity(intent);
 				break;
 			// 退出菜单
@@ -680,4 +807,5 @@ public class MainActivity extends Activity implements OnCompletionListener , OnE
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
 }

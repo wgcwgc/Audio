@@ -5,6 +5,7 @@ import java.util.Random;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -117,16 +118,23 @@ public class Recorder extends Activity
 	{
 
 		Intent intent = new Intent(Intent.ACTION_SEND);
-		 intent.setType("image/*");
-		// intent.setType("media/*");
-//		 intent.setType("text/plain");
 
-//		intent.setType("audio/*");
+		// intent.setType("image/*");
+		// intent.setType("media/*");
+		// intent.setType("text/plain");
+
+		intent.setType("audio/*");
 		intent.putExtra(Intent.EXTRA_SUBJECT ,"Share");
 		// intent.putExtra(Intent.EXTRA_TEXT
 		// ,"I have successfully share my message through my app");
 		String url = outputFile.toString();
-		intent.putExtra(Intent.EXTRA_STREAM ,url);
+		// File file = new File(url);
+		Uri uri = Uri.parse(url);
+		// Uri uri = Uri.fromFile(file);
+
+		// intent.setPackage("com.runcom.wgcwgc.audio");
+		// public int getFft (byte[] fft);
+		intent.putExtra(Intent.EXTRA_STREAM ,uri);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(Intent.createChooser(intent ,"·ÖÏí"));
 	}
