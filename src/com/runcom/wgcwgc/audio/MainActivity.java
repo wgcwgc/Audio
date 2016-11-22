@@ -89,7 +89,7 @@ public class MainActivity extends FragmentActivity implements OnCompletionListen
 
 	protected static final int SEARCH_MUSIC_SUCCESS = 0;// 搜索成功标记
 	private SeekBar seekBar;
-	private ListView listView;
+	private ListView listView , listView01;
 	private ImageButton btnPlay;
 	private TextView tv_currTime , tv_totalTime , tv_showName;
 	private List < String > play_list = new ArrayList < String >(); // 播放列表
@@ -156,11 +156,13 @@ public class MainActivity extends FragmentActivity implements OnCompletionListen
 		tab3Tv.setOnClickListener(this);
 
 		initViewPager_middle();
+
 	}
 
 	/**
 	 * 初始化viewpager
 	 */
+	@SuppressLint("InflateParams")
 	@SuppressWarnings("deprecation")
 	private void initViewPager_middle()
 	{
@@ -176,12 +178,15 @@ public class MainActivity extends FragmentActivity implements OnCompletionListen
 		viewPager.setAdapter(new FragmentAdapter(getSupportFragmentManager() , fragmentsList));
 		viewPager.setCurrentItem(0);
 		viewPager.setOnPageChangeListener(this);
+
+		listView01 = (ListView) getLayoutInflater().inflate(R.layout.fragment_tab1 ,null).findViewById(R.id.fragment_tab1_listView);
+		listView01.setOnItemClickListener(this);
+		// TODO
 	}
 
 	@Override
 	public void onPageScrolled(int position , float positionOffset , int positionOffsetPixels )
 	{
-		// TODO
 		offset = (screen1_3 - cursorImg.getLayoutParams().width) / 2;
 		Log.d("111" ,position + "--" + positionOffset + "--" + positionOffsetPixels);
 		// final float scale = getResources().getDisplayMetrics().density;
@@ -202,7 +207,6 @@ public class MainActivity extends FragmentActivity implements OnCompletionListen
 	@Override
 	public void onClick(View v )
 	{
-		// TODO Auto-generated method stub
 		switch(v.getId())
 		{
 			case R.id.tab1_tv:
@@ -220,14 +224,13 @@ public class MainActivity extends FragmentActivity implements OnCompletionListen
 	@Override
 	public void onPageScrollStateChanged(int arg0 )
 	{
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onPageSelected(int arg0 )
 	{
-		// TODO Auto-generated method stub
+		Toast.makeText(this ,arg0 + "被选择了" ,Toast.LENGTH_SHORT).show();
 
 	}
 
@@ -256,6 +259,7 @@ public class MainActivity extends FragmentActivity implements OnCompletionListen
 					// 搜索音乐文件结束
 					ma = new MusicListAdapter();
 					listView.setAdapter(ma);
+//					listView01.setAdapter(ma);
 					pd.dismiss();
 					break;
 				case CURR_TIME_VALUE:
@@ -332,7 +336,8 @@ public class MainActivity extends FragmentActivity implements OnCompletionListen
 			name = name.substring(name.lastIndexOf("/") + 1);
 			// tv_music_name.setText(list.get(position));
 			tv_music_name.setText(name);
-//			Toast.makeText(MainActivity.this ,"搜索完成" ,Toast.LENGTH_SHORT).show();
+			// Toast.makeText(MainActivity.this ,"搜索完成"
+			// ,Toast.LENGTH_SHORT).show();
 			return convertView;
 		}
 
@@ -451,6 +456,7 @@ public class MainActivity extends FragmentActivity implements OnCompletionListen
 		}
 		else
 		{
+			tv_showName.setText("");
 			Toast.makeText(this ,"播放列表为空" ,Toast.LENGTH_SHORT).show();
 		}
 	}

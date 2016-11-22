@@ -5,4 +5,13 @@
     android:background="#DEB887"
     android:orientation="vertical" >
 
+    <ListView
+        android:id="@+id/fragment_tab1_listView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#B8B8B8"
+        android:singleLine="true" >
+    </ListView>
+
 </LinearLayout>
